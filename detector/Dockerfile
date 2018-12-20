@@ -6,4 +6,5 @@ ADD ./requirements.txt ./
 RUN pip install -r requirements.txt
 ADD ./ ./
 
-CMD ["python", "app.py"]
+EXPOSE 5070
+#CMD ["python", "app.py"]
