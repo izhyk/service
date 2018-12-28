@@ -1,3 +1,4 @@
 kafka-python
 sanic
 sanic-redis
+aiopg[sa]

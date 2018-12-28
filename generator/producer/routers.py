@@ -1,34 +1,33 @@
 import json
-from time import sleep
-from producer import APP, KAFKA_BROKER_URL, TRANSACTIONS_TOPIC
 from kafka import KafkaProducer
+from aiopg.sa import create_engine
 from sanic.response import json as s_json
-from transactions import create_random_transaction
-from kafka.errors import KafkaError
+from producer import APP, KAFKA_BROKER_URL
+from producer.tables import messages
 
 
-@APP.route("/")
+@APP.route("/producer")
 async def test(request):
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BROKER_URL,
         value_serializer=lambda value: json.dumps(value).encode(),
+        batch_size=0,
+        linger_ms=10
     )
 
-    # transaction: dict = create_random_transaction()
-    producer.send(TRANSACTIONS_TOPIC, value='hello producer')
-    Flush()
+    for i in range(100):
+        producer.send('my-topic', value='version ' + str(i) + '.0')
 
-    print("hello producer")  # DEBUG
-    return s_json({'hello producer'})
+    producer.flush()
+
+    return s_json({'hello world'})
 
 
-async def run_producer():
-    producer = KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER_URL,
-        value_serializer=lambda value: json.dumps(value).encode(),
-    )
-    while True:
-        transaction: dict = create_random_transaction()
-        producer.send(TRANSACTIONS_TOPIC, value=transaction)
-        print(transaction)  # DEBUG
-        sleep(1/100)
+@APP.route("/write")
+async def write(request):
+    async with create_engine(**APP.config.POSTGRES) as engine:
+        async with engine.acquire() as conn:
+            await conn.execute(messages.insert().values(message='new message'))
+    return s_json({'writed'})
+
+
