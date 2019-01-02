@@ -6,35 +6,37 @@ services:
     container_name: generator
     build: ./generator
     environment:
-      KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: queueing.transactions
-      TRANSACTIONS_PER_SECOND: 1
+      KAFKA_BROKER_URL: kafka:9092
     volumes:
       - ./generator:/app
     ports:
       - "5050:5050"
     depends_on:
       - redis
+      - kafka
+      - zookeeper
     command: python app.py
 
 
   detector:
     container_name: detector
+    restart: always
     build: ./detector
     volumes:
       - ./detector:/app
     environment:
-      KAFKA_BROKER_URL: broker:9092
-      TRANSACTIONS_TOPIC: queueing.transactions
-      LEGIT_TOPIC: streaming.transactions.legit
-      FRAUD_TOPIC: streaming.transactions.fraud
+      KAFKA_BROKER_URL: kafka:9092
     ports:
       - "5070:5070"
+    depends_on:
+      - kafka
+      - zookeeper
     command: python app.py
 
 
   redis:
     image: redis:latest
+    container_name: redis
     hostname: redis
     volumes:
       - redis_data:/data
@@ -46,6 +48,7 @@ services:
       - "6379:6379"
 
   postgres:
+    container_name: postgres
     image: postgres:10
     volumes:
       - "/var/run/postgres/postgres.sock:/var/run/postgres/postgres.sock"
@@ -57,6 +60,44 @@ services:
     ports:
       - 5432:5432
 
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_PORT: 2181
+      ZOOKEEPER_HOST: zookeeper
+  kafka:
+    restart: always
+    image: wurstmeister/kafka:0.10.2.0
+    container_name: kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_PORT: 9092
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
+
+  cassandra:
+    container_name: cassandra
+    image: cassandra:latest
+    ports:
+      - "7000:7000"
+      - "9042:9042"
+    restart: always
+    depends_on:
+      - generator
+      - kafka
+      - postgres
+      - zookeeper
+      - redis
+    environment:
+      CASSANDRA_HOST: cassandra
+
+
 
 volumes:
   redis_data:
@@ -65,7 +106,7 @@ volumes:
   det_code:
 
 
-networks:
-  default:
-    external:
-      name: kafka-network
+#networks:
+#  default:
+#    external:
+#      name: kafka-network

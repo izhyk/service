@@ -1,21 +1,33 @@
 import os
 import json
 from kafka import KafkaConsumer
+from aiokafka import AIOKafkaConsumer
 from sanic import Sanic
+import asyncio
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 
-app = Sanic()
-
 
 if __name__ == '__main__':
-    # app.run(host="0.0.0.0", port=5070)
-    while True:
-        consumer = KafkaConsumer(
+    loop = asyncio.get_event_loop()
+
+
+    async def consume():
+        consumer = AIOKafkaConsumer(
             'my-topic',
-            auto_offset_reset='earliest',
-            bootstrap_servers=KAFKA_BROKER_URL,
-            value_deserializer=lambda value: json.loads(value),
-        )
-        for message in consumer:
-            print('my-topic', message.value)  # DEBUG
+            loop=loop, bootstrap_servers='kafka:9092',
+            )
+        # Get cluster layout and join group `my-group`
+        await consumer.start()
+        try:
+            # Consume messages
+            async for msg in consumer:
+                print("consumed: ", msg.topic, msg.partition, msg.offset,
+                      msg.key, msg.value, msg.timestamp)
+        finally:
+            # Will leave consumer group; perform autocommit if enabled.
+            await consumer.stop()
+
+
+    loop.run_until_complete(consume())
+
