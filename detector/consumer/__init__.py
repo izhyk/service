@@ -1,14 +1,13 @@
-import os
-import asyncio
 from sanic import Sanic
-from sanic_redis import SanicRedis
+from .config import Configs
+from cassandra.cluster import Cluster
 
+CLUSTER = Cluster(contact_points=['cassandra'],
+                  port=9042)
 
-KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
+SESSION = CLUSTER.connect()
 
-APP = Sanic()
-
-LOOP = asyncio.get_event_loop()
+APP = Sanic(__name__)
 
 APP.config.update(
     {
@@ -26,7 +25,5 @@ APP.config.update(
     }
 )
 
-redis = SanicRedis(APP)
-
-
 from .routers import *
+

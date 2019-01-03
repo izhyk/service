@@ -9,21 +9,31 @@ services:
       KAFKA_BROKER_URL: kafka:9092
     volumes:
       - ./generator:/app
+    depends_on:
+      - kafka
+      - postgres
+      - zookeeper
+      - redis
     ports:
       - "5050:5050"
-    depends_on:
-      - redis
     command: python app.py
 
 
   detector:
     container_name: detector
-    restart: always
     build: ./detector
     volumes:
       - ./detector:/app
     environment:
       KAFKA_BROKER_URL: kafka:9092
+      CASSANDRA_HOST: cassandra
+    depends_on:
+      - generator
+      - kafka
+      - postgres
+      - zookeeper
+      - cassandra
+      - redis
     ports:
       - "5070:5070"
     command: python app.py
@@ -55,43 +65,34 @@ services:
     ports:
       - 5432:5432
 
-#  zookeeper:
-#    image: zookeeper:latest
-#    container_name: zookeeper
-#    ports:
-#      - "2181:2181"
-#    environment:
-#      ZOOKEEPER_PORT: 2181
-#      ZOOKEEPER_HOST: zookeeper
-#  kafka:
-#    restart: always
-#    image: wurstmeister/kafka:0.10.2.0
-#    container_name: kafka
-#    environment:
-#      KAFKA_ADVERTISED_HOST_NAME: kafka
-#      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-#      KAFKA_ADVERTISED_PORT: 9092
-#    ports:
-#      - "9092:9092"
-#    expose:
-#      - 9092
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_PORT: 2181
+      ZOOKEEPER_HOST: zookeeper
 
-#  cassandra:
-#    container_name: cassandra
-#    image: cassandra:latest
-#    ports:
-#      - "7000:7000"
-#      - "9042:9042"
-#    restart: always
-#    depends_on:
-#      - generator
-#      - kafka
-#      - postgres
-#      - zookeeper
-#      - redis
-#    environment:
-#      CASSANDRA_HOST: cassandra
+  kafka:
+    restart: always
+    image: wurstmeister/kafka:0.10.2.0
+    container_name: kafka
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_PORT: 9092
+    ports:
+      - "9092:9092"
+    expose:
+      - 9092
 
+  cassandra:
+    container_name: cassandra
+    image: cassandra:latest
+    ports:
+      - "7000:7000"
+      - "9042:9042"
 
 
 volumes:
@@ -101,7 +102,7 @@ volumes:
   det_code:
 
 
-networks:
-  default:
-    external:
-      name: kafka-network
+#networks:
+#  default:
+#    external:
+#      name: kafka-network

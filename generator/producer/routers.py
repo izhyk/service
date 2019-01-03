@@ -1,39 +1,31 @@
-import json
-from kafka import KafkaProducer
-from aiopg.sa import create_engine
-from sanic.response import json as s_json
-from producer import APP, KAFKA_BROKER_URL
-from producer.tables import messages
-from aiokafka import AIOKafkaProducer
+from sanic.response import html, redirect
+from producer.helpers import send_one
+from producer import APP, LOOP
 import asyncio
 
-loop = asyncio.get_event_loop()
+
+@APP.route("/", methods=['GET'])
+async def index(request):
+    return html('''
+        <form action='/send_message' method='post'>
+            Your Message: <input type='text' name='message'><br>
+            <input type='submit' value ='Send'>
+        </form>
+    ''')
 
 
-@APP.route("/producer")
-async def test(request):
+@APP.route("/send_message", methods=['POST'])
+async def send_message(request):
+    message = request.form.get('message')
+
+    if not message:
+        message = 'Default message'
+
+    # TODO: impossible to use LOOP from producer
     loop = asyncio.get_event_loop()
-    await send_one(loop)
-    return s_json({'hello world'})
+    print(message)  # debug
+    await send_one(loop, message)
+    return redirect('/')
 
-
-async def send_one(loop):
-        producer = AIOKafkaProducer(
-            loop=loop, bootstrap_servers='kafka:9092',
-            )
-        await producer.start()
-        try:
-            await producer.send_and_wait("my-topic", b"Super message")
-            print('sended')
-        finally:
-            await producer.stop()
-
-
-@APP.route("/write")
-async def write(request):
-    async with create_engine(**APP.config.POSTGRES) as engine:
-        async with engine.acquire() as conn:
-            await conn.execute(messages.insert().values(message='new message'))
-    return s_json({'writed'})
 
 

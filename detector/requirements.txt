@@ -1,4 +1,7 @@
 kafka-python==1.4.3
 sanic
+aiopg[sa]
 sanic-redis
 aiokafka
+cassandra-driver
+aiocassandra
