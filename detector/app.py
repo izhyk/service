@@ -16,12 +16,14 @@ if __name__ == '__main__':
         consumer = AIOKafkaConsumer(
             'my-topic',
             loop=loop, bootstrap_servers='kafka:9092',
+            group_id="my-group"
             )
         # Get cluster layout and join group `my-group`
         await consumer.start()
         try:
             # Consume messages
             async for msg in consumer:
+                assert False, m
                 print("consumed: ", msg.topic, msg.partition, msg.offset,
                       msg.key, msg.value, msg.timestamp)
         finally:

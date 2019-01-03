@@ -7,21 +7,26 @@ from producer.tables import messages
 from aiokafka import AIOKafkaProducer
 import asyncio
 
+loop = asyncio.get_event_loop()
+
 
 @APP.route("/producer")
 async def test(request):
-    async def send_one():
+    loop = asyncio.get_event_loop()
+    await send_one(loop)
+    return s_json({'hello world'})
+
+
+async def send_one(loop):
         producer = AIOKafkaProducer(
-            loop=asyncio.get_event_loop(), bootstrap_servers='kafka:9092')
+            loop=loop, bootstrap_servers='kafka:9092',
+            )
         await producer.start()
         try:
             await producer.send_and_wait("my-topic", b"Super message")
+            print('sended')
         finally:
             await producer.stop()
-
-    asyncio.get_event_loop().run_until_complete(send_one())
-
-    return s_json({'hello world'})
 
 
 @APP.route("/write")
