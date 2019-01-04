@@ -1,20 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e52645fc-3079-4ffc-bd33-72a2020baca0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/service.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/detector/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/consumer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/consumer/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/detector/consumer/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/consumer/consumer.py" beforeDir="false" afterPath="$PROJECT_DIR$/detector/consumer/consumer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/consumer/db_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/detector/consumer/db_services.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/detector/consumer/routers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/detector/consumer/routers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generator/producer/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/generator/producer/helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generator/producer/routers.py" beforeDir="false" afterPath="$PROJECT_DIR$/generator/producer/routers.py" afterDir="false" />
-    </list>
+    <list default="true" id="e52645fc-3079-4ffc-bd33-72a2020baca0" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,8 +110,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/detector/consumer/consumer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="31" column="12" selection-start-line="31" selection-start-column="12" selection-end-line="31" selection-end-column="12" />
+            <state relative-caret-position="708">
+              <caret line="43" column="53" lean-forward="true" selection-start-line="43" selection-start-column="53" selection-end-line="43" selection-end-column="53" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -273,7 +260,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35840000" />
+    <option name="totallyTimeSpent" value="36510000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="27" width="1853" height="1053" extended-state="6" />
@@ -497,8 +484,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/detector/consumer/consumer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="31" column="12" selection-start-line="31" selection-start-column="12" selection-end-line="31" selection-end-column="12" />
+        <state relative-caret-position="708">
+          <caret line="43" column="53" lean-forward="true" selection-start-line="43" selection-start-column="53" selection-end-line="43" selection-end-column="53" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
           </folding>

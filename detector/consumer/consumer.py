@@ -27,11 +27,14 @@ class AIOConsumer:
 
         await cls.consumer.start()
         try:
-            # await cls.commit_per_item()
-            # await cls.commit_per_item()
+            await asyncio.ensure_future(cls.commit_per_second())
+
             async for msg in cls.consumer:
-                # assert False, (msg.topic, msg.partition, msg.offset, msg.key, msg.value, msg.timestamp)
                 cls.number_of_messages += 1
+                if cls.number_of_messages >= 10:
+                    cls.consumer.commit()
+                    cls.number_of_messages = 0
+                    cls.time_last_commit = time()
                 print("consumed: ", msg.topic, msg.partition, msg.offset,
                       msg.key, msg.value, msg.timestamp)
         finally:
@@ -46,15 +49,6 @@ class AIOConsumer:
                 cls.consumer.commit()
                 cls.number_of_messages = 0
                 cls.time_last_commit = time()
-            await asyncio.sleep(1)
+            await asyncio.sleep(10 - time_diff)
 
-    @classmethod
-    async def commit_per_item(cls):
-        while True:
-            print('I am in item func')
-            if cls.number_of_messages >= 10:
-                cls.consumer.commit()
-                cls.number_of_messages = 0
-                cls.time_last_commit = time()
-            await asyncio.sleep(1)
 
