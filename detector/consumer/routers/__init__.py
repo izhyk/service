@@ -1,19 +1,19 @@
 from consumer import APP
 from consumer.config import Configs
-from consumer.consumer import Consumer
-from consumer.db_services import PostgresService, CassandraService
+from consumer.consumer import AIOConsumer
+from consumer.db_services import *
 
 
 @APP.listener('before_server_start')
 async def init_db(app, loop):
     if Configs['MESSAGE_DATABASE'] == 'Postgresewwer':
         try:
-            await PostgresService.init_table()
+            await pg_init_table()
         except Exception as e:
             print("Exception" + str(e))
     else:
         try:
-            await CassandraService.init_table()
+            await cassandra_init_table()
         except Exception as e:
             print("Exception" + str(e))
 
@@ -25,4 +25,4 @@ async def init_db(app, loop):
 
 @APP.listener('after_server_start')
 async def start_consumer(app, loop):
-    await Consumer.run_consumer()
+    await AIOConsumer.init()

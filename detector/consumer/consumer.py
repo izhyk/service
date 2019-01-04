@@ -1,69 +1,60 @@
 from aiokafka import AIOKafkaConsumer
-import os
-from consumer.config import Configs
 import asyncio
 import json
+import os
+from time import time
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 
-class Consumer:
 
-    AIOConsumer: AIOKafkaConsumer = None
-    message_number: int = 0
+class AIOConsumer:
+
+    number_of_messages = 0
+    time_last_commit = 0
+    consumer: AIOKafkaConsumer
 
     @classmethod
-    async def init(cls, seconds, count):
-        cls.AIOConsumer = AIOKafkaConsumer(
+    async def init(cls):
+        cls.consumer = AIOKafkaConsumer(
             'my-topic',
             bootstrap_servers=KAFKA_BROKER_URL,
             loop=asyncio.get_event_loop(),
             value_deserializer=lambda value: json.loads(value),
             enable_auto_commit=False,
+            auto_offset_reset='earliest',
             group_id="my-group"
-            )
-        print('here')
+        )
+
+        await cls.consumer.start()
+        try:
+            # await cls.commit_per_item()
+            # await cls.commit_per_item()
+            async for msg in cls.consumer:
+                # assert False, (msg.topic, msg.partition, msg.offset, msg.key, msg.value, msg.timestamp)
+                cls.number_of_messages += 1
+                print("consumed: ", msg.topic, msg.partition, msg.offset,
+                      msg.key, msg.value, msg.timestamp)
+        finally:
+            await cls.consumer.stop()
+
+    @classmethod
+    async def commit_per_second(cls):
         while True:
-            try:
-                await cls.AIOConsumer.start()
-                cls._commit = asyncio.ensure_future(cls.commit_per_second(seconds))
-                cls._commit = asyncio.ensure_future(cls.commit_per_message(count))
-                break
-            except Exception as e:
-                print("Error " + str(e))
-                await asyncio.sleep(1)
+            print('I am in second func')
+            time_diff = time() - cls.time_last_commit
+            if time_diff > 10:
+                cls.consumer.commit()
+                cls.number_of_messages = 0
+                cls.time_last_commit = time()
+            await asyncio.sleep(1)
 
     @classmethod
-    async def run_consumer(cls):
-        print('run_consumer')
-        await cls.init(seconds=10, count=10)
-        async for msg in cls.AIOConsumer:
-            cls.message_number += 1
-            await cls.write_to_db('my-topic', message=msg.value, offset=msg.offset)
-
-    @classmethod
-    async def commit_per_second(cls, second):
+    async def commit_per_item(cls):
         while True:
-            await asyncio.sleep(second)
-            cls.AIOConsumer.commit()
-            cls.message_number = 0
-
-    @classmethod
-    async def commit_per_message(cls, count):
-        while True:
-            if cls.message_number >= count:
-                cls.AIOConsumer.commit()
-                cls.message_number = 0
-            await asyncio.sleep(.2)
-
-    @classmethod
-    async def write_to_db(cls, topic, message, offset):
-        if True:
-            print(message)
-        # else:
-        #     print('57')
-
-        # if Configs['OFFSET_DATABASE'] == 'Redis':
-        #     print('57')
-        # else:
-        #     print('57')
+            print('I am in item func')
+            if cls.number_of_messages >= 10:
+                cls.consumer.commit()
+                cls.number_of_messages = 0
+                cls.time_last_commit = time()
+            await asyncio.sleep(1)
 

@@ -4,6 +4,7 @@ services:
 
   generator:
     container_name: generator
+    restart: always
     build: ./generator
     environment:
       KAFKA_BROKER_URL: kafka:9092
@@ -21,6 +22,7 @@ services:
 
   detector:
     container_name: detector
+    restart: always
     build: ./detector
     volumes:
       - ./detector:/app

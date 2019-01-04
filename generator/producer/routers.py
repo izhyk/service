@@ -23,7 +23,6 @@ async def send_message(request):
 
     # TODO: impossible to use LOOP from producer
     loop = asyncio.get_event_loop()
-    print(message)  # debug
     await send_one(loop, message)
     return redirect('/')
 

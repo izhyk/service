@@ -12,6 +12,8 @@ async def send_one(loop, message):
     )
     await producer.start()
     try:
-        await producer.send_and_wait("my-topic", message)
+        for i in range(200):
+            await producer.send_and_wait("my-topic", message)
+            print(message)
     finally:
         await producer.stop()

@@ -1,11 +1,17 @@
 from sanic import Sanic
 from .config import Configs
+import asyncio
 from cassandra.cluster import Cluster
 
-CLUSTER = Cluster(contact_points=['cassandra'],
+CLUSTER = Cluster(['cassandra'],
                   port=9042)
 
-SESSION = CLUSTER.connect()
+while True:
+    try:
+        SESSION = CLUSTER.connect()
+        break
+    except Exception as e:
+        asyncio.sleep(2)
 
 APP = Sanic(__name__)
 
