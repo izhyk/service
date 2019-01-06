@@ -1,5 +1,5 @@
 from aiokafka import AIOKafkaProducer
-from producer import KAFKA_BROKER_URL
+from app import KAFKA_BROKER_URL
 import json
 
 
@@ -12,7 +12,7 @@ async def send_one(loop, message):
     )
     await producer.start()
     try:
-        for i in range(200):
+        for i in range(100):
             await producer.send_and_wait("my-topic", message)
             print(message)
     finally:

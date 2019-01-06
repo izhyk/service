@@ -1,8 +1,8 @@
 from aiokafka import AIOKafkaConsumer
-import asyncio
 import json
 import os
-from time import time
+from db_services import *
+
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 
@@ -21,20 +21,26 @@ class AIOConsumer:
             loop=asyncio.get_event_loop(),
             value_deserializer=lambda value: json.loads(value),
             enable_auto_commit=False,
-            auto_offset_reset='earliest',
             group_id="my-group"
         )
 
-        await cls.consumer.start()
+        while True:
+            try:
+                await cls.consumer.start()
+                break
+            except Exception as e:
+                asyncio.sleep(1)
         try:
-            await asyncio.ensure_future(cls.commit_per_second())
+            asyncio.ensure_future(cls.commit_per_second())
 
             async for msg in cls.consumer:
                 cls.number_of_messages += 1
+                # assert False, (msg.value)
+                await cls.write_to_db(msg.offset, msg.value)
                 if cls.number_of_messages >= 10:
                     cls.consumer.commit()
                     cls.number_of_messages = 0
-                    cls.time_last_commit = time()
+                    cls.time_last_commit = time.time()
                 print("consumed: ", msg.topic, msg.partition, msg.offset,
                       msg.key, msg.value, msg.timestamp)
         finally:
@@ -43,12 +49,20 @@ class AIOConsumer:
     @classmethod
     async def commit_per_second(cls):
         while True:
-            print('I am in second func')
-            time_diff = time() - cls.time_last_commit
+            time_diff = time.time() - cls.time_last_commit
             if time_diff > 10:
                 cls.consumer.commit()
                 cls.number_of_messages = 0
-                cls.time_last_commit = time()
-            await asyncio.sleep(10 - time_diff)
+                cls.time_last_commit = time.time()
+            else:
+                await asyncio.sleep(10 - time_diff)
+
+    @classmethod
+    async def write_to_db(cls, offset, msg):
+        # await zookeeper_insert(offset)
+        # await redis_set(offset)
+        await pg_insert(offset, msg)
+        # await cassandra_insert(str(offset), msg)
+
 
 

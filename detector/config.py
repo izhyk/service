@@ -1,22 +1,10 @@
 import os
-import asyncio
-from sanic import Sanic
-from sanic_redis import SanicRedis
-
+from app import APP
 
 KAFKA_BROKER_URL = os.environ.get('KAFKA_BROKER_URL')
 
-APP = Sanic()
-
-LOOP = asyncio.get_event_loop()
-
 APP.config.update(
     {
-        'REDIS': {
-            'address': ('redis', 6379),
-            'db': 1,
-        },
-
         'POSTGRES': {
             'user': 'postgres',
             'database': 'postgres',
@@ -25,8 +13,3 @@ APP.config.update(
         }
     }
 )
-
-redis = SanicRedis(APP)
-
-
-from .routers import *

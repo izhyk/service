@@ -1,6 +1,6 @@
 from sanic.response import html, redirect
-from producer.helpers import send_one
-from producer import APP, LOOP
+from helpers import send_one
+from app import APP
 import asyncio
 
 
