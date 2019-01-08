@@ -6,3 +6,4 @@ aiokafka
 cassandra-driver
 aiocassandra
 aiozk
+pyyaml

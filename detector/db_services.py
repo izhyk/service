@@ -4,6 +4,7 @@ import asyncio
 import time
 import aiozk
 import aioredis
+import asyncio
 from tables import messages_pg
 
 
@@ -11,7 +12,7 @@ KEYSPACE = "service"
 
 
 async def pg_create_engine():
-    return await create_engine(**APP.config.POSTGRES)
+    return await create_engine(**APP.config.postgres)
 
 
 async def pg_init_table():
